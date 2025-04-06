@@ -1,42 +1,48 @@
 package com.example.restaurantfinder.ui.screens.home
 
-
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-
-import androidx.compose.runtime.State
-
 import androidx.lifecycle.viewModelScope
 import com.example.restaurantfinder.data.model.Restaurant
-import com.example.restaurantfinder.data.network.RetrofitInstance
+import com.example.restaurantfinder.data.repository.RestaurantRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
-//    var postcode = mutableStateOf("")
-private val _postcode = mutableStateOf("")
-    val postcode: State<String> = _postcode
-    fun onPostcodeChange(newPostcode: String) {
-//        postcode.value = newPostcode
-        _postcode.value = newPostcode
-    }
+class HomeViewModel(
+    private val repository: RestaurantRepository = RestaurantRepository()
+) : ViewModel() {
 
-    fun searchRestaurants() {
-        println("Searching for: ${postcode.value}")
-    }
+    private val _restaurants = MutableStateFlow<List<Restaurant>>(emptyList())
+    val restaurants: StateFlow<List<Restaurant>> = _restaurants
 
-//    var restaurants: List<Restaurant> = emptyList()
-//    var isLoading = false
-//
-//    fun searchRestaurants(postcode: String) {
-//        isLoading = true
-//        viewModelScope.launch {
-//            try {
-//                restaurants = RetrofitInstance.api.getRestaurantsByPostcode(postcode)
-//                isLoading = false
-//            } catch (e: Exception) {
-//                // Handle errors (e.g., no internet)
-//                isLoading = false
-//            }
-//        }
-//    }
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading
+
+    private val _snackbarMessage = MutableStateFlow<String?>(null)
+    val snackbarMessage: StateFlow<String?> = _snackbarMessage
+
+    fun searchRestaurants(postcode: String) {
+        if (postcode.isBlank()) {
+            _snackbarMessage.value = "Please enter a postcode."
+            return
+        }
+
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val response = repository.getRestaurantsByPostcode(postcode)
+                val restaurants = response.restaurants.take(10)
+
+                if (restaurants.isEmpty()) {
+                    _snackbarMessage.value = "No restaurants found for $postcode"
+                }
+
+                _restaurants.value = restaurants
+            } catch (e: Exception) {
+                _snackbarMessage.value = "Failed to load restaurants."
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
 }
