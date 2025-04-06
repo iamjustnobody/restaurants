@@ -6,29 +6,77 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
+
 @Composable
-fun HomeScreen() {
-    var postcode by remember { mutableStateOf("") }
+fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+//fun HomeScreen() {
+//    var postcode by remember { mutableStateOf("") }
+//
+//    Column(modifier = Modifier
+//        .fillMaxSize()
+//        .padding(16.dp)) {
+//        OutlinedTextField(
+//            value = postcode,
+//            onValueChange = { postcode = it },
+//            label = { Text("Enter UK postcode") },
+//            modifier = Modifier.fillMaxWidth()
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        Button(
+//            onClick = {  },
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            Text("Search")
+//        }
+//    }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
-        OutlinedTextField(
-            value = postcode,
-            onValueChange = { postcode = it },
-            label = { Text("Enter UK postcode") },
-            modifier = Modifier.fillMaxWidth()
-        )
+    val postcode by viewModel.postcode
+    val onPostcodeChange = viewModel::onPostcodeChange
 
-        Spacer(modifier = Modifier.height(16.dp))
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-        Button(
-            onClick = { /* TODO: Trigger search */ },
-            modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            Text("Search")
-        }
+            OutlinedTextField(
+                value = postcode,
+                onValueChange = onPostcodeChange,
+                label = { Text("Enter UK postcode") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        // TODO: Show list of restaurants here
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    viewModel.searchRestaurants()
+                    coroutineScope.launch {
+//                        snackbarHostState.showSnackbar("Snackbar Searching for: $postcode")
+                        snackbarHostState.showSnackbar(
+                            message = "Snackbar Searching for: $postcode",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Search")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text("Results will go here...")
+        }
     }
 }
