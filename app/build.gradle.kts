@@ -69,5 +69,16 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+//    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation ("com.squareup.moshi:moshi:1.13.0")
+    implementation ("com.squareup.moshi:moshi-kotlin:1.13.0")
+
+    implementation ("androidx.compose.ui:ui:1.4.0")
+    implementation ("androidx.compose.material3:material3:1.1.0")
+//    implementation ("androidx.compose.foundation:foundation:1.4.0")
+//    implementation ("androidx.compose.foundation:foundation-layout:1.4.0")
+    implementation("androidx.compose.material:material:1.4.0") // For Material icons
+//    implementation("androidx.compose.ui:ui-tooling-preview:1.4.0")
+    implementation ("com.google.accompanist:accompanist-placeholder-material:0.24.13-rc")
 }
