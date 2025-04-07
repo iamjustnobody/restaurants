@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -56,11 +58,13 @@ fun RestaurantCard(restaurant: Restaurant) {
 
 
 //            RatingBar(rating = restaurant.rating.starRating)
-//            restaurant.rating?.starRating?.let { RatingBar(rating = it) }//ok
+//            restaurant.rating?.starRating?.let { RatingBarXml(rating = it) }//ok
             Row(verticalAlignment = Alignment.CenterVertically) {
 //                Icon(Icons.Filled.Star, contentDescription = null)
+//                restaurant.rating?.starRating?.let { RatingBarXml(rating = it) }//ok
                 restaurant.rating?.starRating?.let { RatingBar(rating = it) }
-                Text(text = "${restaurant.rating?.starRating}/5", style = MaterialTheme.typography.labelMedium)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = "${restaurant.rating?.starRating}/5", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 4.dp))
             }
 
             Text("${restaurant.address?.firstLine}, ${restaurant.address?.city}, ${restaurant.address?.postalCode}")
@@ -93,7 +97,7 @@ fun RestaurantCard(restaurant: Restaurant) {
 //}
 
 @Composable
-fun RatingBar(rating: Double) {
+fun RatingBarXml(rating: Double) {
     // Calculate the number of full, half, and empty stars
     val fullStars = rating.toInt()
     val halfStar = if (rating % 1 >= 0.5) 1 else 0
