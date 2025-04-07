@@ -1,10 +1,12 @@
 package com.example.restaurantfinder.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
@@ -31,19 +33,38 @@ fun RestaurantCard(restaurant: Restaurant) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+            .padding(8.dp).clickable { /* Handle click */ },
+
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+//        elevation = 4.dp,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+//            if (restaurant.imageUrl != null) {
+//                Image(painter = rememberImagePainter(restaurant.imageUrl), contentDescription = null)
+//            }
+
             Text(restaurant.name, style = MaterialTheme.typography.titleMedium)
+//            Text(text = restaurant.name, style = MaterialTheme.typography.h6)
+
 //            Text(restaurant.cuisines.joinToString { it.name }, style = MaterialTheme.typography.bodySmall)
             Text(
                 restaurant.cuisines.joinToString(", ") { cuisine -> cuisine.name },
                 style = MaterialTheme.typography.bodySmall
             )
+//            Text(text = "Cuisines: ${restaurant.cuisines.joinToString(", ")}", style = MaterialTheme.typography.body2)
+
+
 //            RatingBar(rating = restaurant.rating.starRating)
-            restaurant.rating?.starRating?.let { RatingBar(rating = it) }
+//            restaurant.rating?.starRating?.let { RatingBar(rating = it) }//ok
+            Row(verticalAlignment = Alignment.CenterVertically) {
+//                Icon(Icons.Filled.Star, contentDescription = null)
+                restaurant.rating?.starRating?.let { RatingBar(rating = it) }
+                Text(text = "${restaurant.rating?.starRating}/5", style = MaterialTheme.typography.labelMedium)
+            }
+
             Text("${restaurant.address?.firstLine}, ${restaurant.address?.city}, ${restaurant.address?.postalCode}")
+//            Text(text = restaurant.address, style = MaterialTheme.typography.body2)
         }
     }
 }
