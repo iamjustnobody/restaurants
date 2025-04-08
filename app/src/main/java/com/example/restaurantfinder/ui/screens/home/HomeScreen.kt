@@ -1,5 +1,6 @@
 package com.example.restaurantfinder.ui.screens.home
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
@@ -34,6 +36,7 @@ import com.example.restaurantfinder.ui.screens.home.HomeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.restaurantfinder.ui.components.RestaurantCard
 import com.example.restaurantfinder.ui.components.SkeletonCard
+import com.example.restaurantfinder.ui.components.SortModal
 
 
 //import androidx.compose.foundation.placeholder.placeholder
@@ -47,6 +50,7 @@ import com.google.accompanist.placeholder.material.shimmer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +77,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
     val focusManager = LocalFocusManager.current
 
-    val postcodeRegex = "^[A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2}$".toRegex()
+//    val postcodeRegex = "^[A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2}$".toRegex()
+//    val postcodeRegex = "^(?i)^[A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2}$".toRegex()
+
+//    val postcodeRegex = "^[A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2}$".toRegex(RegexOption.IGNORE_CASE)
+    val postcodeRegex = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? \\d[A-Za-z]{2}$".toRegex()
+
+
     val isValidPostcode = !postcode.isEmpty() && postcodeRegex.matches(postcode)
 
     // Handle the Clear Button
@@ -191,6 +201,17 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         }
     }
 
+////    val restaurants by viewModel.filteredRestaurants.observeAsState(emptyList())
+////    var showModal by remember { mutableStateOf(false) }
+//    val restaurants = viewModel.filteredRestaurants
+////    var selectedSortingOption by remember { mutableStateOf(SortingOption.NAME) }
+//
+//    val sortingOptions = SortingOption.values()
+//
+//    var showModal = remember { mutableStateOf(false) }
+//    val selectedSortingOption = remember { mutableStateOf(SortingOption.DEFAULT) }
+
+
 // UI components
     Scaffold(
 //        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -240,7 +261,11 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                 trailingIcon = {
                     if (postcode.isNotEmpty() && !state.isLoading) {
                         IconButton(onClick = { clearPostcode() }) {
-                            Text("X")
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Clear postcode",
+                                tint = Color.Black,
+                            )
                         }
                     }
                 },
@@ -295,6 +320,16 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            // Sorting Button
+//            Button(
+//                onClick = { showModal.value = true },
+//                modifier = Modifier
+//                    .padding(16.dp)
+//                    .fillMaxWidth()
+//            ) {
+//                Text("Sort by: ${selectedSortingOption.value.name}")
+//            }
+//            Spacer(modifier = Modifier.height(16.dp))
 
             // Loading Indicator
             if (state.isLoading) {
@@ -459,6 +494,14 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             )
         }
 
+
+//        SortModal(
+//            showModal = showModal,
+//            selectedSortingOption = selectedSortingOption,
+//            sortingOptions = sortingOptions, // Converting list to array
+//            viewModel = viewModel
+//        )
+
     }
     }//)
 }
@@ -472,3 +515,6 @@ fun LazyListState.isScrolledToEnd(): Boolean {
 //whole page covered
 //skelton placeholder
 
+enum class SortingOption {
+    NAME, RATING, CUISINE, DEFAULT
+}

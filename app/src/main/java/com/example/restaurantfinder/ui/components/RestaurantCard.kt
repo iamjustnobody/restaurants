@@ -1,15 +1,19 @@
 package com.example.restaurantfinder.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,7 +27,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.restaurantfinder.R
 
 
@@ -45,7 +52,13 @@ fun RestaurantCard(restaurant: Restaurant) {
 //            if (restaurant.imageUrl != null) {
 //                Image(painter = rememberImagePainter(restaurant.imageUrl), contentDescription = null)
 //            }
-
+            Image(
+                painter = rememberAsyncImagePainter(restaurant.logoUrl),
+                contentDescription = restaurant.uniqueName,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.height(120.dp).fillMaxWidth() // Set a specific height
+            )
+//            Spacer(modifier = Modifier.width(8.dp))
             Text(restaurant.name, style = MaterialTheme.typography.titleMedium)
 //            Text(text = restaurant.name, style = MaterialTheme.typography.h6)
 
@@ -67,8 +80,27 @@ fun RestaurantCard(restaurant: Restaurant) {
                 Text(text = "${restaurant.rating?.starRating}/5", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 4.dp))
             }
 
-            Text("${restaurant.address?.firstLine}, ${restaurant.address?.city}, ${restaurant.address?.postalCode}")
+//            Text("${restaurant.address?.firstLine}, ${restaurant.address?.city}, ${restaurant.address?.postalCode}")
 //            Text(text = restaurant.address, style = MaterialTheme.typography.body2)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                // Location icon
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    contentDescription = "Location Icon",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Gray
+                )
+
+                // Address text
+                Text(
+                    text = "${restaurant.address?.firstLine}, ${restaurant.address?.city}, ${restaurant.address?.postalCode}",
+                    modifier = Modifier.padding(start = 8.dp), // Space between icon and text
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }

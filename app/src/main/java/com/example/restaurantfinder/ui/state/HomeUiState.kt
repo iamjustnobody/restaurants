@@ -7,5 +7,6 @@ data class HomeUiState(
     val snackbarMessage: String? = null,
     val showSuccessDialog: Boolean = false,
     val isLoadingMore: Boolean = false,
-    val noMoreItems: Boolean = false
+    val noMoreItems: Boolean = false,
+    val filteredRestaurants: List<Restaurant> = emptyList(), // Add filtered restaurants
 )

@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+
+
 }
 
 android {
@@ -81,4 +83,8 @@ dependencies {
     implementation("androidx.compose.material:material:1.4.0") // For Material icons
 //    implementation("androidx.compose.ui:ui-tooling-preview:1.4.0")
     implementation ("com.google.accompanist:accompanist-placeholder-material:0.24.13-rc")
+
+    implementation ("io.coil-kt:coil-compose:2.1.0")
+
+
 }

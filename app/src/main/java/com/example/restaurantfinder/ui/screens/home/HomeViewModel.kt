@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.restaurantfinder.data.model.FilterOptions
 import kotlinx.coroutines.launch
 import com.example.restaurantfinder.data.repository.RestaurantRepository
 import com.example.restaurantfinder.data.model.Restaurant
@@ -41,6 +42,17 @@ class HomeViewModel : ViewModel() {
     // Public read-only state
     val uiState: State<HomeUiState> = _uiState
 
+    // Filter state
+    var isFilterDialogVisible by mutableStateOf(false)
+        private set
+
+    var filterOptions by mutableStateOf(FilterOptions())
+        private set
+
+    var filteredRestaurants by mutableStateOf<List<Restaurant>>(emptyList())
+        private set
+
+
     suspend fun searchRestaurants(postcode: String, initial: Boolean = true): List<Restaurant> {
         try {
             // Update UI before the API call
@@ -54,6 +66,7 @@ class HomeViewModel : ViewModel() {
 
             val response = JustEatApi.service.getRestaurantsByPostcode(postcode)
             val restaurants = response.restaurants
+            setRestaurants(restaurants)
 
             // Post-API call success
             _uiState.value = _uiState.value.copy(
@@ -160,6 +173,7 @@ class HomeViewModel : ViewModel() {
     fun fetchInitialRestaurants(postcode: String) {
         viewModelScope.launch {
             val initialRestaurants = searchRestaurants(postcode, initial = true)
+            applyFilters(initialRestaurants)
             _uiState.value = _uiState.value.copy(
                 restaurants = initialRestaurants,
                 noMoreItems = false // Reset for new search
@@ -168,5 +182,52 @@ class HomeViewModel : ViewModel() {
     }
 
 
+
+    // Apply filter logic
+    fun applyFilters(restaurants: List<Restaurant>): List<Restaurant>  {
+        filteredRestaurants = restaurants.filter { restaurant ->
+            (!filterOptions.isNew || restaurant.isNew == true) &&
+                    (!filterOptions.isCollection || restaurant.isCollection == true) &&
+                    (!filterOptions.isDelivery || restaurant.isDelivery == true) &&
+                    (!filterOptions.isOpenNowForCollection || restaurant.isOpenNowForCollection == true) &&
+                    (!filterOptions.isOpenNowForDelivery || restaurant.isOpenNowForDelivery == true) &&
+                    (!filterOptions.isOpenNowForPreorder || restaurant.isOpenNowForPreorder == true) &&
+                    (!filterOptions.deliveryIsOpen || restaurant.availability?.delivery?.isOpen == true) &&
+                    (!filterOptions.deliveryCanPreOrder || restaurant.availability?.delivery?.canPreOrder == true)
+        }
+        return filteredRestaurants
+    }
+
+    // Set filter dialog visibility
+    fun updateFilterDialogVisible(visible: Boolean) {
+        isFilterDialogVisible = visible
+    }
+
+    fun updateFilterOptions(options: FilterOptions) {
+        filterOptions = options
+    }
+
+//    fun setFilteredRestaurants(restaurants: List<Restaurant>) {
+//        filteredRestaurants = restaurants
+//    }
+    fun setRestaurants(restaurants: List<Restaurant>) {
+        _uiState.value = _uiState.value.copy(
+            restaurants = restaurants,
+            filteredRestaurants = restaurants // Initially show all restaurants
+        )
+    }
+    fun updateFilteredRestaurants(restaurants: List<Restaurant>) {
+        _uiState.value = _uiState.value.copy(filteredRestaurants = restaurants)
+    }
+
+    // Add sorting function
+    fun sortRestaurants(option: SortingOption) {
+        filteredRestaurants = when (option) {
+            SortingOption.NAME -> filteredRestaurants.sortedBy { it.name }
+            SortingOption.RATING -> filteredRestaurants.sortedByDescending { it.rating?.starRating }
+            SortingOption.CUISINE -> filteredRestaurants.sortedBy { it.cuisines.joinToString(", ") { cuisine -> cuisine.name } }
+            SortingOption.DEFAULT -> filteredRestaurants
+        }
+    }
 }
 
