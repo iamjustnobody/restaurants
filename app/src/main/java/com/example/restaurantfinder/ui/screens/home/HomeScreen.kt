@@ -103,8 +103,6 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 //            .collect { layoutInfo ->
 //                val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
 //                val totalItems = layoutInfo.totalItemsCount
-//
-//                // Guard against empty list & already loading
 //                if (totalItems > 0 &&
 //                    lastVisible >= totalItems - 1 &&
 //                    !state.isLoadingMore &&
@@ -177,15 +175,6 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         }
     }
 
-////    val restaurants by viewModel.filteredRestaurants.observeAsState(emptyList())
-////    var showModal by remember { mutableStateOf(false) }
-//    val restaurants = viewModel.filteredRestaurants
-////    var selectedSortingOption by remember { mutableStateOf(SortingOption.NAME) }
-//
-//    val sortingOptions = SortingOption.values()
-//
-//    var showModal = remember { mutableStateOf(false) }
-//    val selectedSortingOption = remember { mutableStateOf(SortingOption.DEFAULT) }
 
 
 // UI components
