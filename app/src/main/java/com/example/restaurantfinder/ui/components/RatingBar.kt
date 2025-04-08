@@ -17,32 +17,30 @@ import androidx.compose.ui.graphics.Color.Companion.Yellow
 
 @Composable
 fun RatingBar(rating: Double) {
-    val fullStars = rating.toInt()  // Whole stars
-    val remainingRating = rating - fullStars  // Remaining fractional part for partial star
-
+    val fullStars = rating.toInt()
+    val remainingRating = rating - fullStars
     Row {
-        // Draw full stars
         repeat(fullStars) {
             Canvas(modifier = Modifier.size(24.dp)) {
                 drawStar(StarType.FULL)
             }
         }
 
-        // Draw partial star (if applicable)
+
         if (remainingRating > 0) {
             Canvas(modifier = Modifier.size(24.dp)) {
                 drawStar(StarType.PARTIAL, remainingRating)
             }
         }
 
-        // Draw empty stars for the remaining part of the rating
+
         repeat(5 - fullStars - if (remainingRating > 0) 1 else 0) {
             Canvas(modifier = Modifier.size(24.dp)) {
                 drawStar(StarType.EMPTY)
             }
         }
 
-        // Display rating as text
+
 //        Text(text = "${rating}/5", style = MaterialTheme.typography.titleSmall)
     }
 }

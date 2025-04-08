@@ -29,11 +29,11 @@ fun SortModal(
     sortingOptions: Array<SortingOption>,
     viewModel: HomeViewModel
 ) {
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden) // Remember the Modal Bottom Sheet State
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
     if (showModal.value) {
         ModalBottomSheetLayout(
-            sheetState = sheetState, // Using the correct SheetState here
+            sheetState = sheetState,
             sheetContent = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     sortingOptions.forEach { option ->
@@ -43,7 +43,6 @@ fun SortModal(
                                 .clickable {
                                     selectedSortingOption.value = option
                                     showModal.value = false
-                                    // Call the sorting function in the ViewModel
                                     viewModel.sortRestaurants(option)
                                 }
                                 .padding(16.dp)
@@ -51,7 +50,7 @@ fun SortModal(
                     }
                 }
             },
-            content = { /* Empty content */ }
+            content = { /*  content */ }
         )
     }
 }

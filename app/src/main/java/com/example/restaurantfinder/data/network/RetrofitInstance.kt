@@ -11,14 +11,14 @@ object RetrofitInstance {
     private const val BASE_URL = "https://uk.api.just-eat.io/"
 
     val moshi = Moshi.Builder()
-        .add(KotlinJsonAdapterFactory())  // Add the Kotlin adapter for Kotlin data classes
+        .add(KotlinJsonAdapterFactory())
         .build()
 
     val api: JustEatApi by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
 //            .addConverterFactory(GsonConverterFactory.create())
-            .addConverterFactory(MoshiConverterFactory.create(moshi))  // Pass custom Moshi instance
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(JustEatApi::class.java)
     }

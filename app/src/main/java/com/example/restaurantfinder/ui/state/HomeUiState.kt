@@ -8,5 +8,5 @@ data class HomeUiState(
     val showSuccessDialog: Boolean = false,
     val isLoadingMore: Boolean = false,
     val noMoreItems: Boolean = false,
-    val filteredRestaurants: List<Restaurant> = emptyList(), // Add filtered restaurants
+    val filteredRestaurants: List<Restaurant> = emptyList(),
 )

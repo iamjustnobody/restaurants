@@ -25,9 +25,9 @@ data class Restaurant(
 )
 
 data class Rating(
-    val starRating: Double? = null,//Float? = null,//Double? = null, // Nullable  with default value null
-    val count: Int = 0, // Default to 0 if not provided
-    val userRating: Double? = null,//Float? = null //Double? = null // Nullable  with default value null
+    val starRating: Double? = null,//Float? = null,//Double? = null,
+    val count: Int = 0,
+    val userRating: Double? = null,//Float? = null //Double? = null
 )
 
 

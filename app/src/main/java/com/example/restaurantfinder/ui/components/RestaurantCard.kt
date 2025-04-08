@@ -49,55 +49,43 @@ fun RestaurantCard(restaurant: Restaurant) {
 //        elevation = 4.dp,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-//            if (restaurant.imageUrl != null) {
-//                Image(painter = rememberImagePainter(restaurant.imageUrl), contentDescription = null)
-//            }
             Image(
                 painter = rememberAsyncImagePainter(restaurant.logoUrl),
                 contentDescription = restaurant.uniqueName,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.height(120.dp).fillMaxWidth() // Set a specific height
+                modifier = Modifier.height(120.dp).fillMaxWidth()
             )
-//            Spacer(modifier = Modifier.width(8.dp))
-            Text(restaurant.name, style = MaterialTheme.typography.titleMedium)
-//            Text(text = restaurant.name, style = MaterialTheme.typography.h6)
 
-//            Text(restaurant.cuisines.joinToString { it.name }, style = MaterialTheme.typography.bodySmall)
+            Text(restaurant.name, style = MaterialTheme.typography.titleMedium)
+
+
             Text(
                 restaurant.cuisines.joinToString(", ") { cuisine -> cuisine.name },
                 style = MaterialTheme.typography.bodySmall
             )
-//            Text(text = "Cuisines: ${restaurant.cuisines.joinToString(", ")}", style = MaterialTheme.typography.body2)
 
-
-//            RatingBar(rating = restaurant.rating.starRating)
-//            restaurant.rating?.starRating?.let { RatingBarXml(rating = it) }//ok
+//          restaurant.rating?.starRating?.let { RatingBarXml(rating = it) }//ok
             Row(verticalAlignment = Alignment.CenterVertically) {
-//                Icon(Icons.Filled.Star, contentDescription = null)
-//                restaurant.rating?.starRating?.let { RatingBarXml(rating = it) }//ok
+//              restaurant.rating?.starRating?.let { RatingBarXml(rating = it) }//ok
                 restaurant.rating?.starRating?.let { RatingBar(rating = it) }
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = "${restaurant.rating?.starRating}/5", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 4.dp))
             }
 
 //            Text("${restaurant.address?.firstLine}, ${restaurant.address?.city}, ${restaurant.address?.postalCode}")
-//            Text(text = restaurant.address, style = MaterialTheme.typography.body2)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 8.dp)
             ) {
-                // Location icon
                 Icon(
                     imageVector = Icons.Filled.LocationOn,
                     contentDescription = "Location Icon",
                     modifier = Modifier.size(20.dp),
                     tint = Color.Gray
                 )
-
-                // Address text
                 Text(
                     text = "${restaurant.address?.firstLine}, ${restaurant.address?.city}, ${restaurant.address?.postalCode}",
-                    modifier = Modifier.padding(start = 8.dp), // Space between icon and text
+                    modifier = Modifier.padding(start = 8.dp),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -130,7 +118,6 @@ fun RestaurantCard(restaurant: Restaurant) {
 
 @Composable
 fun RatingBarXml(rating: Double) {
-    // Calculate the number of full, half, and empty stars
     val fullStars = rating.toInt()
     val halfStar = if (rating % 1 >= 0.5) 1 else 0
     val emptyStars = 5 - fullStars - halfStar
@@ -139,17 +126,17 @@ fun RatingBarXml(rating: Double) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Display the full stars
+
         repeat(fullStars) {
             Icon(painter = painterResource(id = R.drawable.star_filled), contentDescription = "Filled Star", tint = Color.Yellow)
         }
 
-        // Display the half star if necessary
+
         if (halfStar > 0) {
             Icon(painter = painterResource(id = R.drawable.star_half), contentDescription = "Half Star", tint = Color.Yellow)
         }
 
-        // Display the empty stars
+
         repeat(emptyStars) {
             Icon(painter = painterResource(id = R.drawable.star_empty), contentDescription = "Empty Star", tint = Color.Gray)
         }
@@ -159,16 +146,16 @@ fun RatingBarXml(rating: Double) {
 
 
 fun calculateStarRating(rating: Float): Pair<Int, Boolean> {
-    val fullStars = rating.toInt() // Get the integer part (full stars)
-    val hasHalfStar = rating - fullStars >= 0.5f // Check if there's a half star
+    val fullStars = rating.toInt()
+    val hasHalfStar = rating - fullStars >= 0.5f
     return Pair(fullStars, hasHalfStar)
 }
 
 fun getEmptyStars(fullStars: Int, hasHalfStar: Boolean): Int {
     val totalStars = 5
     return if (hasHalfStar) {
-        totalStars - fullStars - 1 // Subtract one because half star occupies part of the last one
+        totalStars - fullStars - 1
     } else {
-        totalStars - fullStars // Empty stars fill the gap
+        totalStars - fullStars
     }
 }

@@ -16,33 +16,14 @@ import com.example.restaurantfinder.data.network.JustEatApi
 
 //class HomeViewModel(private val restaurantRepository: RestaurantRepository) : ViewModel() {
 class HomeViewModel : ViewModel() {
-//    var restaurants: List<Restaurant> by mutableStateOf(emptyList())
-//    var isLoading: Boolean by mutableStateOf(false)
-//    var errorMessage = ""
-//    fun searchRestaurants(postcode: String) {
-//        viewModelScope.launch {
-//            isLoading = true
-//            try {
-//                // Call the repository to fetch restaurant data based on postcode
-////                restaurants = restaurantRepository.getRestaurantsByPostcode(postcode)
-//            } catch (e: Exception) {
-//                errorMessage = "Failed to fetch restaurants."
-//                // Handle errors (e.g., show snackbar with error message)
-//            } finally {
-//                isLoading = false
-//            }
-//        }
-//    }
 
-//
 
-    // Internal mutable state
     private val _uiState = mutableStateOf(HomeUiState())
 
-    // Public read-only state
+
     val uiState: State<HomeUiState> = _uiState
 
-    // Filter state
+
     var isFilterDialogVisible by mutableStateOf(false)
         private set
 
@@ -55,7 +36,6 @@ class HomeViewModel : ViewModel() {
 
     suspend fun searchRestaurants(postcode: String, initial: Boolean = true): List<Restaurant> {
         try {
-            // Update UI before the API call
             _uiState.value = _uiState.value.copy(
                 snackbarMessage = if (initial) "Searching for restaurants at: $postcode" else null,
                 errorMessage = null,
@@ -68,7 +48,7 @@ class HomeViewModel : ViewModel() {
             val restaurants = response.restaurants
             setRestaurants(restaurants)
 
-            // Post-API call success
+
             _uiState.value = _uiState.value.copy(
                 snackbarMessage = if (initial) {
                     if (restaurants.isEmpty()) "No restaurants found." else "Restaurants loaded successfully 🎉"
@@ -93,7 +73,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    //ok below
+
 //    fun searchRestaurants(postcode: String): List<Restaurant> {
 //        val restaurants = mutableListOf<Restaurant>()
 //        viewModelScope.launch {
@@ -158,12 +138,10 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    //ok below
+
 //    fun loadMoreRestaurants(postcode: String) {
 //        viewModelScope.launch {
-//            // Implement logic to load more restaurants (e.g., API call)
-//            // Update the UI state with the new list of restaurants
-//            val moreRestaurants = searchRestaurants(postcode) // Replace with actual function
+//            val moreRestaurants = searchRestaurants(postcode)
 //            _uiState.value = _uiState.value.copy(
 //                restaurants = _uiState.value.restaurants + moreRestaurants
 //            )
@@ -176,14 +154,14 @@ class HomeViewModel : ViewModel() {
             applyFilters(initialRestaurants)
             _uiState.value = _uiState.value.copy(
                 restaurants = initialRestaurants,
-                noMoreItems = false // Reset for new search
+                noMoreItems = false
             )
         }
     }
 
 
 
-    // Apply filter logic
+
     fun applyFilters(restaurants: List<Restaurant>): List<Restaurant>  {
         filteredRestaurants = restaurants.filter { restaurant ->
             (!filterOptions.isNew || restaurant.isNew == true) &&
@@ -198,7 +176,7 @@ class HomeViewModel : ViewModel() {
         return filteredRestaurants
     }
 
-    // Set filter dialog visibility
+
     fun updateFilterDialogVisible(visible: Boolean) {
         isFilterDialogVisible = visible
     }
@@ -207,20 +185,18 @@ class HomeViewModel : ViewModel() {
         filterOptions = options
     }
 
-//    fun setFilteredRestaurants(restaurants: List<Restaurant>) {
-//        filteredRestaurants = restaurants
-//    }
+
     fun setRestaurants(restaurants: List<Restaurant>) {
         _uiState.value = _uiState.value.copy(
             restaurants = restaurants,
-            filteredRestaurants = restaurants // Initially show all restaurants
+            filteredRestaurants = restaurants
         )
     }
     fun updateFilteredRestaurants(restaurants: List<Restaurant>) {
         _uiState.value = _uiState.value.copy(filteredRestaurants = restaurants)
     }
 
-    // Add sorting function
+
     fun sortRestaurants(option: SortingOption) {
         filteredRestaurants = when (option) {
             SortingOption.NAME -> filteredRestaurants.sortedBy { it.name }
