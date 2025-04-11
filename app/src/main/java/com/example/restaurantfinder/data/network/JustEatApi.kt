@@ -14,7 +14,7 @@ interface JustEatApi {
     @GET("discovery/uk/restaurants/enriched/bypostcode/{postcode}")
     suspend fun getRestaurantsByPostcode(
         @Path("postcode") postcode: String
-    ): RestaurantResponse
+    ): RestaurantResponse //: Response<RestaurantResponse>
 
     companion object {
         val service: JustEatApi by lazy {

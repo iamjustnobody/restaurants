@@ -6,10 +6,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardElevation
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.shimmer
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
+
 
 @Composable
 fun SkeletonCard() {
@@ -38,4 +45,26 @@ fun SkeletonCard() {
             )
         }
     }
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(150.dp)
+//            .padding(16.dp),
+//        contentAlignment = Alignment.Center
+//    ) {
+//        CircularProgressIndicator()
+//    }
+
+
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(8.dp)
+//            .height(100.dp)
+//            .placeholder(
+//                visible = true,
+//                highlight = PlaceholderHighlight.shimmer()
+//            )
+//    ) {}
+
 }

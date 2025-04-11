@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
 //                    )
 //                }
                 HomeScreen()
-                // Pass the ViewModel to the HomeScreen
+
 //                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
 //                    HomeScreen(viewModel = homeViewModel)
 //                }

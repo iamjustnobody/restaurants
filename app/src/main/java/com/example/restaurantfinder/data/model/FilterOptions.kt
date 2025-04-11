@@ -10,3 +10,5 @@ data class FilterOptions(
     val deliveryIsOpen: Boolean = false,
     val deliveryCanPreOrder: Boolean = false
 )
+
+

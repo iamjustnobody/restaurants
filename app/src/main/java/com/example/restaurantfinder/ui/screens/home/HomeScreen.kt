@@ -60,8 +60,8 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-//    val state = viewModel.uiState
-    val state by viewModel.uiState
+
+    val state by viewModel.uiState.collectAsState()
 
     fun showSnackbar(message: String) {
         coroutineScope.launch {
@@ -75,13 +75,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
     val focusManager = LocalFocusManager.current
 
-//    val postcodeRegex = "^[A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2}$".toRegex() //only Uppercase allowed
+
 //    val postcodeRegex = "^(?i)^[A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2}$".toRegex()
 //    val postcodeRegex = "^[A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2}$".toRegex(RegexOption.IGNORE_CASE)
     val postcodeRegex = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? \\d[A-Za-z]{2}$".toRegex()
 
 
-    val isValidPostcode = !postcode.isEmpty() && postcodeRegex.matches(postcode)
+    val isValidPostcode = postcode.isNotEmpty() && postcodeRegex.matches(postcode)
 
 
     fun clearPostcode() {
@@ -92,26 +92,6 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
     val listState = rememberLazyListState()
     val showBackToTop = remember { derivedStateOf { listState.firstVisibleItemIndex > 2 } }
-
-
-//    if (listState.isScrolledToEnd()) {
-////        viewModel.searchRestaurants(postcode)
-//        viewModel.loadMoreRestaurants(postcode)
-//    }//ok
-//    LaunchedEffect(listState, state.restaurants) {
-//        snapshotFlow { listState.layoutInfo }
-//            .collect { layoutInfo ->
-//                val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-//                val totalItems = layoutInfo.totalItemsCount
-//                if (totalItems > 0 &&
-//                    lastVisible >= totalItems - 1 &&
-//                    !state.isLoadingMore &&
-//                    !state.isLoading && !state.noMoreItems && isValidPostcode
-//                ) {
-////                    viewModel.loadMoreRestaurants(postcode)
-//                }
-//            }
-//    }//ok for load more (but need to be careful about first initial loading of the site while no postcode input
 
 
 
@@ -129,10 +109,10 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         }
     }
 
-    // 🎉
+
     if (state.showSuccessDialog) {
         LaunchedEffect(Unit) {
-            delay(2500) //2.5 secs
+            delay(1500) //1.5 secs
             viewModel.dismissSuccessDialog()
         }
         AlertDialog(
@@ -156,8 +136,8 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             errorMessage = "Invalid postcode format."
         } else {
             errorMessage = ""
+//            viewModel.setLoading(true)
             coroutineScope.launch {
-//                viewModel.setLoading(true)
 //                val snackbar = snackbarHostState.showSnackbar(
 //                    message = "Searching for restaurants at: $postcode",
 //                    duration = SnackbarDuration.Indefinite
@@ -180,6 +160,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 // UI components
     Scaffold(
 //        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+//        snackbarHost = {
+//            SnackbarHost(snackbarHostState) { snackbarData ->
+//                Snackbar(
+//                    snackbarData = snackbarData,
+//                )
+//            }
+//        },
         topBar = {
             TopAppBar(
                 title = { Text("Restaurant Finder") }
@@ -197,13 +184,12 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-    //            .padding(paddingValues)
-    //            .padding(16.dp),
                     .padding(horizontal = 16.dp),
     //                .padding(top = paddingValues.calculateTopPadding()),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-    //        Spacer(modifier = Modifier.height(8.dp))
+
                 OutlinedTextField(
                     value = postcode,
                     onValueChange = { postcode = it; errorMessage = "" },
@@ -232,6 +218,9 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                         }
                     },
                     isError = errorMessage.isNotEmpty(),
+//                    keyboardOptions = KeyboardOptions(
+//                        imeAction = ImeAction.Done
+//                    ),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Done
@@ -242,7 +231,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                             submitPostcode()
                         }
                     ),
-                    enabled = !state.isLoading
+                    enabled = !state.isLoading //&& isValidPostcode
 
                 )
 
@@ -263,8 +252,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                 Button(
                     onClick = {
                         submitPostcode()
-                        // trigger search in viewModel
-    //                 viewModel.searchRestaurants(postcode)
+                        // viewModel.searchRestaurants(postcode)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !state.isLoading
@@ -285,31 +273,8 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
                 // Loading Indicator
                 if (state.isLoading) {
-    //            CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
-    //            Column {
-    //                repeat(3) {
-    //                    Box(
-    //                        modifier = Modifier
-    //                            .fillMaxWidth()
-    //                            .height(100.dp)
-    //                            .padding(vertical = 4.dp)
-    //                            .background(Color.LightGray.copy(alpha = 0.5f))
-    //                    )
-    //                }
-    //            }
+//                CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp).align(Alignment.CenterHorizontally))
 
-    //                repeat(5) {
-    //                    Card(
-    //                        modifier = Modifier
-    //                            .fillMaxWidth()
-    //                            .padding(8.dp)
-    //                            .height(100.dp)
-    //                            .placeholder(
-    //                                visible = true,
-    //                                highlight = PlaceholderHighlight.shimmer()
-    //                            )
-    //                    ) {}
-    //                }//ok
                     repeat(10) {
                         SkeletonCard()
                     }
@@ -321,35 +286,12 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                             .weight(1f)
                             .fillMaxWidth()
                     ) {
-    //                    LazyColumn{
-    //                        items(state.restaurants.take(10)) { restaurant ->
-    //                            RestaurantCard(restaurant)
-    //                        }
-    //                    }//ok
                         LazyColumn(state = listState){
                             items(state.restaurants.take(10)) { restaurant ->
                                 RestaurantCard(restaurant = restaurant)
                             }
 
-                        }//ok
-    //                    LazyColumn(state = listState) {
-    //                        items(state.restaurants) { restaurant ->
-    //                            // SwipeToDismiss for each restaurant item
-    //                            SwipeToDismiss(
-    //                                state = rememberDismissState(),
-    //                                background = {
-    //                                    Box(
-    //                                        modifier = Modifier.fillMaxSize().background(Color.Gray)
-    //                                    ) {
-    //                                        Icon(Icons.Default.Favorite, contentDescription = "Favorite", modifier = Modifier.align(Alignment.CenterEnd))
-    //                                    }
-    //                                },
-    //                                dismissContent = {
-    //                                    RestaurantCard(restaurant = restaurant)
-    //                                }
-    //                            )
-    //                        }
-    //                    }//ok
+                        }
 
     //                    LazyVerticalGrid(
     //                        cells = GridCells.Fixed(2), // Two items per row
@@ -360,7 +302,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     //                        }
     //                    )
 
-                        // 👇 FAB to scroll to top
+                        // FAB to scroll to top
                         if (showBackToTop.value) {
                             FloatingActionButton(
                                 onClick = {
@@ -378,16 +320,14 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     }
                 }
 
-                // Snackbar Host
-    //        SnackbarHost(hostState = snackbarHostState)
             }
 
             // positioned Snackbar
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier
-    //                .align(Alignment.TopCenter)
-    //                .padding(top = 120.dp)
+                    //                .align(Alignment.TopCenter)
+                    //                .padding(top = 120.dp)
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 16.dp)
             ) { data ->

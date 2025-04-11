@@ -2,10 +2,6 @@ package com.example.restaurantfinder.ui.screens.home
 
 
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restaurantfinder.data.model.FilterOptions
@@ -13,196 +9,133 @@ import kotlinx.coroutines.launch
 import com.example.restaurantfinder.data.repository.RestaurantRepository
 import com.example.restaurantfinder.data.model.Restaurant
 import com.example.restaurantfinder.data.network.JustEatApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 //class HomeViewModel(private val restaurantRepository: RestaurantRepository) : ViewModel() {
 class HomeViewModel : ViewModel() {
 
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    private val _uiState = mutableStateOf(HomeUiState())
+//    private val _isFilterDialogVisible = MutableStateFlow(false)
+//    val isFilterDialogVisible: StateFlow<HomeUiState> = _uiState.asStateFlow()
+//
+//    private val _filterOptions = MutableStateFlow(FilterOptions())
+//    val filterOptions: StateFlow<FilterOptions> = _filterOptions
+//
+//    private val _filteredRestaurants = MutableStateFlow<List<Restaurant>>(emptyList())
+//    val filteredRestaurants: StateFlow<List<Restaurant>> = _filteredRestaurants
 
-
-    val uiState: State<HomeUiState> = _uiState
-
-
-    var isFilterDialogVisible by mutableStateOf(false)
-        private set
-
-    var filterOptions by mutableStateOf(FilterOptions())
-        private set
-
-    var filteredRestaurants by mutableStateOf<List<Restaurant>>(emptyList())
-        private set
-
-
-    suspend fun searchRestaurants(postcode: String, initial: Boolean = true): List<Restaurant> {
-        try {
-            _uiState.value = _uiState.value.copy(
-                snackbarMessage = if (initial) "Searching for restaurants at: $postcode" else null,
-                errorMessage = null,
-                isLoading = initial,
-                isLoadingMore = !initial,
-                showSuccessDialog = false
-            )
-
-            val response = JustEatApi.service.getRestaurantsByPostcode(postcode)
-            val restaurants = response.restaurants
-            setRestaurants(restaurants)
-
-
-            _uiState.value = _uiState.value.copy(
-                snackbarMessage = if (initial) {
-                    if (restaurants.isEmpty()) "No restaurants found." else "Restaurants loaded successfully 🎉"
-                }
-                else { if (restaurants.isEmpty()) "No more restaurants found." else null },
-                isLoading = false,
-                isLoadingMore = false,
-                showSuccessDialog = initial,
-                noMoreItems = restaurants.isEmpty()
-            )
-
-            return restaurants
-        } catch (e: Exception) {
-            // Post-API call failure
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                isLoadingMore = false,
-                errorMessage = e.localizedMessage ?: "Unknown error",
-                snackbarMessage = "Error: ${e.localizedMessage ?: "Unknown error"}"
-            )
-            return emptyList()
-        }
-    }
-
-
-//    fun searchRestaurants(postcode: String): List<Restaurant> {
-//        val restaurants = mutableListOf<Restaurant>()
-//        viewModelScope.launch {
-////            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-//            _uiState.value = _uiState.value.copy(
-//                isLoading = true,
-//                snackbarMessage = "Searching for restaurants at: $postcode",
-//                showSuccessDialog = false,
-//                errorMessage = null,
-//                isLoadingMore = true
-//            )
-//            try {
-//                val response = JustEatApi.service.getRestaurantsByPostcode(postcode)
-//                restaurants.addAll(response.restaurants)
-//                _uiState.value = _uiState.value.copy(
-//                    restaurants = response.restaurants,
-//                    isLoading = false,
-////                    snackbarMessage = null,
-//                    showSuccessDialog = true,
-//                    snackbarMessage = "Restaurants loaded successfully 🎉",
-////                    showSuccessDialog = false,
-//                    isLoadingMore = false,
-//                )
-//            } catch (e: Exception) {
-//                _uiState.value = _uiState.value.copy(
-//                    isLoading = false,
-//                    errorMessage = e.localizedMessage ?: "Unknown error",
-//                    snackbarMessage = "Error: ${e.localizedMessage ?: "Unknown error"}",
-//                    isLoadingMore = false,
-//                )
-//            }
-//        }
-//        return restaurants
-//    }
-    fun setLoading(loading: Boolean) {
-        _uiState.value = _uiState.value.copy(isLoading = loading)
-    }
-    fun setSnackbarMessage(message: String?) {
-        _uiState.value = _uiState.value.copy(snackbarMessage = message)
-    }
-
-    fun dismissSuccessDialog() {
-        _uiState.value = _uiState.value.copy(showSuccessDialog = false)
-    }
-
-    fun loadMoreRestaurants(postcode: String) {
+    private val repository = RestaurantRepository(JustEatApi.service)
+    fun searchRestaurants(postcode: String, initial: Boolean = true) {
         viewModelScope.launch {
-            val moreRestaurants = searchRestaurants(postcode, initial = false)
+            _uiState.update {
+                it.copy(
+                    snackbarMessage = if (initial) "Searching for restaurants at: $postcode" else null,
+                    errorMessage = null,
+                    isLoading = initial,
+                    isLoadingMore = !initial,
+                    showSuccessDialog = false
+                )
+            }
 
-            if (moreRestaurants.isEmpty()) {
-                _uiState.value = _uiState.value.copy(
-                    isLoadingMore = false,
-                    noMoreItems = true,
-                    snackbarMessage = "You've reached the end of the list!"
-                )
-            } else {
-                _uiState.value = _uiState.value.copy(
-                    restaurants = _uiState.value.restaurants + moreRestaurants,
-                    isLoadingMore = false
-                )
+            try {
+                val restaurants = repository.getRestaurantsByPostcode(postcode)
+
+                _uiState.update {
+                    it.copy(
+                        restaurants = if (initial) restaurants else it.restaurants + restaurants,
+                        filteredRestaurants = restaurants, // or apply filters if needed
+                        snackbarMessage = when {
+                            initial && restaurants.isEmpty() -> "No restaurants found."
+                            !initial && restaurants.isEmpty() -> "No more restaurants found."
+                            else -> "Restaurants loaded successfully 🎉"
+                        },
+                        isLoading = false,
+                        isLoadingMore = false,
+                        showSuccessDialog = initial,
+                        noMoreItems = restaurants.isEmpty()
+                    )
+                }
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        isLoadingMore = false,
+                        errorMessage = e.localizedMessage ?: "Unknown error",
+                        snackbarMessage = "Error: ${e.localizedMessage ?: "Unknown error"}"
+                    )
+                }
             }
         }
     }
 
-
-//    fun loadMoreRestaurants(postcode: String) {
-//        viewModelScope.launch {
-//            val moreRestaurants = searchRestaurants(postcode)
-//            _uiState.value = _uiState.value.copy(
-//                restaurants = _uiState.value.restaurants + moreRestaurants
-//            )
-//        }
-//    }
-
     fun fetchInitialRestaurants(postcode: String) {
-        viewModelScope.launch {
-            val initialRestaurants = searchRestaurants(postcode, initial = true)
-            applyFilters(initialRestaurants)
-            _uiState.value = _uiState.value.copy(
-                restaurants = initialRestaurants,
-                noMoreItems = false
+        searchRestaurants(postcode, initial = true)
+    }
+
+    fun loadMoreRestaurants(postcode: String) {
+        searchRestaurants(postcode, initial = false)
+    }
+
+    fun setSnackbarMessage(message: String?) {
+        _uiState.update { it.copy(snackbarMessage = message) }
+    }
+
+    fun dismissSuccessDialog() {
+        _uiState.update { it.copy(showSuccessDialog = false) }
+    }
+
+
+    fun applyFilters(restaurants: List<Restaurant>) {
+        val filters = _uiState.value.filterOptions
+        val filtered = restaurants.filter { restaurant ->
+            (!filters.isNew || restaurant.isNew == true) &&
+                    (!filters.isCollection || restaurant.isCollection == true) &&
+                    (!filters.isDelivery || restaurant.isDelivery == true) &&
+                    (!filters.isOpenNowForCollection || restaurant.isOpenNowForCollection == true) &&
+                    (!filters.isOpenNowForDelivery || restaurant.isOpenNowForDelivery == true) &&
+                    (!filters.isOpenNowForPreorder || restaurant.isOpenNowForPreorder == true) &&
+                    (!filters.deliveryIsOpen || restaurant.availability?.delivery?.isOpen == true) &&
+                    (!filters.deliveryCanPreOrder || restaurant.availability?.delivery?.canPreOrder == true)
+        }
+
+        _uiState.update { it.copy(filteredRestaurants = filtered) }
+    }
+
+    fun updateFilterDialogVisible(visible: Boolean) {
+        _uiState.update { it.copy(isFilterDialogVisible = visible) }
+    }
+
+    fun updateFilterOptions(options: FilterOptions) {
+        _uiState.update { it.copy(filterOptions = options) }
+    }
+
+    fun setRestaurants(restaurants: List<Restaurant>) {
+        _uiState.update {
+            it.copy(
+                restaurants = restaurants,
+                filteredRestaurants = restaurants
             )
         }
     }
 
-
-
-
-    fun applyFilters(restaurants: List<Restaurant>): List<Restaurant>  {
-        filteredRestaurants = restaurants.filter { restaurant ->
-            (!filterOptions.isNew || restaurant.isNew == true) &&
-                    (!filterOptions.isCollection || restaurant.isCollection == true) &&
-                    (!filterOptions.isDelivery || restaurant.isDelivery == true) &&
-                    (!filterOptions.isOpenNowForCollection || restaurant.isOpenNowForCollection == true) &&
-                    (!filterOptions.isOpenNowForDelivery || restaurant.isOpenNowForDelivery == true) &&
-                    (!filterOptions.isOpenNowForPreorder || restaurant.isOpenNowForPreorder == true) &&
-                    (!filterOptions.deliveryIsOpen || restaurant.availability?.delivery?.isOpen == true) &&
-                    (!filterOptions.deliveryCanPreOrder || restaurant.availability?.delivery?.canPreOrder == true)
-        }
-        return filteredRestaurants
-    }
-
-
-    fun updateFilterDialogVisible(visible: Boolean) {
-        isFilterDialogVisible = visible
-    }
-
-    fun updateFilterOptions(options: FilterOptions) {
-        filterOptions = options
-    }
-
-
-    fun setRestaurants(restaurants: List<Restaurant>) {
-        _uiState.value = _uiState.value.copy(
-            restaurants = restaurants,
-            filteredRestaurants = restaurants
-        )
-    }
-    fun updateFilteredRestaurants(restaurants: List<Restaurant>) {
-        _uiState.value = _uiState.value.copy(filteredRestaurants = restaurants)
-    }
-
-
     fun sortRestaurants(option: SortingOption) {
-        filteredRestaurants = when (option) {
-            SortingOption.NAME -> filteredRestaurants.sortedBy { it.name }
-            SortingOption.RATING -> filteredRestaurants.sortedByDescending { it.rating?.starRating }
-            SortingOption.CUISINE -> filteredRestaurants.sortedBy { it.cuisines.joinToString(", ") { cuisine -> cuisine.name } }
-            SortingOption.DEFAULT -> filteredRestaurants
+        val sorted = when (option) {
+            SortingOption.NAME -> _uiState.value.filteredRestaurants.sortedBy { it.name }
+            SortingOption.RATING -> _uiState.value.filteredRestaurants.sortedByDescending { it.rating?.starRating }
+            SortingOption.CUISINE -> _uiState.value.filteredRestaurants.sortedBy {
+                it.cuisines.joinToString(", ") { cuisine -> cuisine.name }
+            }
+            SortingOption.DEFAULT -> _uiState.value.filteredRestaurants
+        }
+
+        _uiState.update {
+            it.copy(filteredRestaurants = sorted, sortingOption = option)
         }
     }
 }
