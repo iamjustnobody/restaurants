@@ -43,7 +43,8 @@ fun SortModal(
                                 .clickable {
                                     selectedSortingOption.value = option
                                     showModal.value = false
-                                    viewModel.sortRestaurants(option)
+//                                    viewModel.sortRestaurants(option)
+                                    viewModel.sortFilteredRestaurants(option)
                                 }
                                 .padding(16.dp)
                         )

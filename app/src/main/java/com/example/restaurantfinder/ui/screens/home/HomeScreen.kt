@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.restaurantfinder.ui.components.SortAndFilterControls
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -272,7 +273,11 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) { //viewModel: HomeVi
                     Text("Search")
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+//                Spacer(modifier = Modifier.height(16.dp))
+
+                Spacer(modifier = Modifier.height(12.dp))
+                SortAndFilterControls(currentSorting = state.sortingOption, onSortSelect = { viewModel.sortFilteredRestaurants(it) }, onFilterClick = { viewModel.updateFilterDialogVisible(true)})
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Loading Indicator
                 if (state.isLoading) {
@@ -290,7 +295,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) { //viewModel: HomeVi
                             .fillMaxWidth()
                     ) {
                         LazyColumn(state = listState){
-                            items(state.restaurants.take(10)) { restaurant ->
+                            items(state.filteredRestaurants.take(10)) { restaurant ->
                                 RestaurantCard(restaurant = restaurant)
                             }
 
@@ -366,5 +371,5 @@ fun LazyListState.isScrolledToEnd(): Boolean {
 
 
 enum class SortingOption {
-    NAME, RATING, CUISINE, DEFAULT
+    NAME_ASC, NAME_DESC, RATING_ASC, RATING_DESC, CUISINE_ASC, CUISINE_DESC, DEFAULT
 }

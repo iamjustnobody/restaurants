@@ -62,8 +62,9 @@ fun FilterBar(viewModel: HomeViewModel) {
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.updateFilterDialogVisible(false)
-                        viewModel.applyFilters(uiState.restaurants)
+//                        viewModel.updateFilterDialogVisible(false)
+//                        viewModel.applyFilters(uiState.restaurants)
+                        viewModel.filterAndSortRestaurants(uiState.filterOptions, false)
                     }
                 ) {
                     Text("Apply")

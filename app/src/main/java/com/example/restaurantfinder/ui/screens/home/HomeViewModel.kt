@@ -25,13 +25,13 @@ class HomeViewModel @Inject constructor(private val repository: RestaurantReposi
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
 //    private val _isFilterDialogVisible = MutableStateFlow(false)
-//    val isFilterDialogVisible: StateFlow<HomeUiState> = _uiState.asStateFlow()
+//    val isFilterDialogVisible: StateFlow<Boolean> = _isFilterDialogVisible.asStateFlow()
 //
 //    private val _filterOptions = MutableStateFlow(FilterOptions())
-//    val filterOptions: StateFlow<FilterOptions> = _filterOptions
+//    val filterOptions: StateFlow<FilterOptions> = _filterOptions.asStateFlow()
 //
 //    private val _filteredRestaurants = MutableStateFlow<List<Restaurant>>(emptyList())
-//    val filteredRestaurants: StateFlow<List<Restaurant>> = _filteredRestaurants
+//    val filteredRestaurants: StateFlow<List<Restaurant>> = _filteredRestaurants.asStateFlow()
 
 //    private val repository = RestaurantRepository(JustEatApi.service)
     fun searchRestaurants(postcode: String, initial: Boolean = true) {
@@ -96,7 +96,7 @@ class HomeViewModel @Inject constructor(private val repository: RestaurantReposi
     }
 
 
-    fun applyFilters(restaurants: List<Restaurant>) {
+    fun getFilteredRestaurants(restaurants: List<Restaurant>):List<Restaurant> { //:Unit
         val filters = _uiState.value.filterOptions
         val filtered = restaurants.filter { restaurant ->
             (!filters.isNew || restaurant.isNew == true) &&
@@ -109,6 +109,13 @@ class HomeViewModel @Inject constructor(private val repository: RestaurantReposi
                     (!filters.deliveryCanPreOrder || restaurant.availability?.delivery?.canPreOrder == true)
         }
 
+//        _uiState.update { it.copy(filteredRestaurants = filtered) }
+
+        return filtered
+    }
+    fun applyFilters():Unit {
+        val allRestaurants = _uiState.value.restaurants
+        val filtered = getFilteredRestaurants(allRestaurants)
         _uiState.update { it.copy(filteredRestaurants = filtered) }
     }
 
@@ -120,6 +127,12 @@ class HomeViewModel @Inject constructor(private val repository: RestaurantReposi
         _uiState.update { it.copy(filterOptions = options) }
     }
 
+    fun filterAndSortRestaurants(options: FilterOptions, isVisible: Boolean) {
+        val filtered = getFilteredRestaurants(_uiState.value.restaurants)
+        val sortedFiltered = getSortedRestaurnts(filtered, _uiState.value.sortingOption)
+        _uiState.update { it.copy( filteredRestaurants = sortedFiltered, filterOptions = options, isFilterDialogVisible = isVisible) }
+    }
+
     fun setRestaurants(restaurants: List<Restaurant>) {
         _uiState.update {
             it.copy(
@@ -129,19 +142,33 @@ class HomeViewModel @Inject constructor(private val repository: RestaurantReposi
         }
     }
 
-    fun sortRestaurants(option: SortingOption) {
+    fun getSortedRestaurnts(restaurants: List<Restaurant>, option: SortingOption) :List<Restaurant> {
         val sorted = when (option) {
-            SortingOption.NAME -> _uiState.value.filteredRestaurants.sortedBy { it.name }
-            SortingOption.RATING -> _uiState.value.filteredRestaurants.sortedByDescending { it.rating?.starRating }
-            SortingOption.CUISINE -> _uiState.value.filteredRestaurants.sortedBy {
+            SortingOption.NAME_ASC -> _uiState.value.filteredRestaurants.sortedBy { it.name }
+            SortingOption.NAME_DESC -> _uiState.value.filteredRestaurants.sortedByDescending { it.name }
+            SortingOption.RATING_ASC -> _uiState.value.filteredRestaurants.sortedBy { it.rating?.starRating }
+            SortingOption.RATING_DESC -> _uiState.value.filteredRestaurants.sortedByDescending { it.rating?.starRating }
+            SortingOption.CUISINE_ASC -> _uiState.value.filteredRestaurants.sortedBy {
+                it.cuisines.joinToString(", ") { cuisine -> cuisine.name }
+            }
+            SortingOption.CUISINE_DESC -> _uiState.value.filteredRestaurants.sortedByDescending {
                 it.cuisines.joinToString(", ") { cuisine -> cuisine.name }
             }
             SortingOption.DEFAULT -> _uiState.value.filteredRestaurants
         }
+        return sorted;
+    }
+    fun sortFilteredRestaurants(option: SortingOption) {
+        val sorted = getSortedRestaurnts(_uiState.value.filteredRestaurants, option)
 
         _uiState.update {
             it.copy(filteredRestaurants = sorted, sortingOption = option)
         }
+    }
+
+    fun toggleFilterDialog(show: Boolean) {
+//        _isFilterDialogVisible.value = show
+        _uiState.update { it.copy(isFilterDialogVisible = show) }
     }
 }
 
