@@ -9,13 +9,17 @@ import kotlinx.coroutines.launch
 import com.example.restaurantfinder.data.repository.RestaurantRepository
 import com.example.restaurantfinder.data.model.Restaurant
 import com.example.restaurantfinder.data.network.JustEatApi
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
-//class HomeViewModel(private val restaurantRepository: RestaurantRepository) : ViewModel() {
-class HomeViewModel : ViewModel() {
+
+@HiltViewModel
+class HomeViewModel @Inject constructor(private val repository: RestaurantRepository) : ViewModel() {
+
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -29,7 +33,7 @@ class HomeViewModel : ViewModel() {
 //    private val _filteredRestaurants = MutableStateFlow<List<Restaurant>>(emptyList())
 //    val filteredRestaurants: StateFlow<List<Restaurant>> = _filteredRestaurants
 
-    private val repository = RestaurantRepository(JustEatApi.service)
+//    private val repository = RestaurantRepository(JustEatApi.service)
     fun searchRestaurants(postcode: String, initial: Boolean = true) {
         viewModelScope.launch {
             _uiState.update {
@@ -56,7 +60,7 @@ class HomeViewModel : ViewModel() {
                         },
                         isLoading = false,
                         isLoadingMore = false,
-                        showSuccessDialog = initial,
+                        showSuccessDialog = restaurants.isNotEmpty(),//initial,
                         noMoreItems = restaurants.isEmpty()
                     )
                 }
@@ -67,7 +71,8 @@ class HomeViewModel : ViewModel() {
                         isLoading = false,
                         isLoadingMore = false,
                         errorMessage = e.localizedMessage ?: "Unknown error",
-                        snackbarMessage = "Error: ${e.localizedMessage ?: "Unknown error"}"
+                        snackbarMessage = "Error: ${e.localizedMessage ?: "Unknown error"}",
+                        showSuccessDialog = false
                     )
                 }
             }

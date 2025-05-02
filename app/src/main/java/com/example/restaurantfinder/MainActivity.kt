@@ -7,15 +7,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.restaurantfinder.ui.theme.MyFirstApplicationTheme
 
 import com.example.restaurantfinder.ui.screens.home.HomeScreen
 import com.example.restaurantfinder.ui.screens.home.HomeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 //    private val homeViewModel: HomeViewModel by viewModels() // Get the ViewModel instance
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,11 +35,11 @@ class MainActivity : ComponentActivity() {
 //                        modifier = Modifier.padding(innerPadding)
 //                    )
 //                }
-                HomeScreen()
-
-//                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-//                    HomeScreen(viewModel = homeViewModel)
-//                }
+//                HomeScreen()
+                val homeViewModel: HomeViewModel = hiltViewModel()
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    HomeScreen(viewModel = homeViewModel)
+                }
             }
         }
     }

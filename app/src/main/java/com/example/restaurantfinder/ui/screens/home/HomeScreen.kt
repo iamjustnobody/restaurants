@@ -2,6 +2,7 @@ package com.example.restaurantfinder.ui.screens.home
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -51,10 +52,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) { //viewModel: HomeViewModel = viewModel()
     var postcode by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -96,6 +98,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
 
     LaunchedEffect(state.snackbarMessage) {
+//        state.snackbarMessage?.let { Log.d("snackbarMessage", it) }
         state.snackbarMessage?.let { message ->
             snackbarHostState.showSnackbar(
                 message = message,
@@ -173,8 +176,8 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             )
         },
         bottomBar = {
-            BottomAppBar {
-            }
+//            BottomAppBar {
+//            }
         })
         //content =
         { paddingValues -> Box(modifier = Modifier
